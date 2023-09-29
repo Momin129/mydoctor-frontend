@@ -1,6 +1,6 @@
 import { Grid } from "@mui/material";
 import ResponsiveDrawer from "../components/sidebar";
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import Speciality from "./speciality";
 import Dashboard from "./doctors";

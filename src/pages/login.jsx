@@ -10,7 +10,7 @@ export default function Login(props) {
   const navigate = useNavigate();
   const [logmsg, setLogmsg] = useState("");
   const [inputs, setInputs] = useState({});
-  const { setRole, handleListItemClick } = useContext(menuButton);
+  const { setRole } = useContext(menuButton);
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -18,16 +18,21 @@ export default function Login(props) {
     setInputs((values) => ({ ...values, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async () => {
     try {
       const result = await axios.post("http://localhost:4000/api/login", {
         email: inputs.email,
         password: inputs.password,
       });
-      console.log(result.data.role);
-      const url = result.data.role == "patient" ? "/dashboard" : "/doctors";
-      localStorage.setItem("role", result.data.role);
-      handleListItemClick(e, 0);
+
+      let url;
+      if (result.data.role == "patient") {
+        if (result.data.isDoctor == "" || !result.data.isDoctor.switch) {
+          url = "/doctors";
+        } else url = "/doctorDashborad";
+      } else url = "/hospitalDashboard";
+
+      localStorage.setItem("details", JSON.stringify(result.data));
       setRole(result.data.role);
       navigate(url);
     } catch (error) {

@@ -66,7 +66,7 @@ export default function Speciality() {
     }
     if (end > data.length) end = data.length;
     setSlicedData(data.slice(start, end));
-  }, [pageNumber]);
+  }, [pageNumber, sort]);
 
   const handleChange = (event) => {
     setSort(event.target.value);
@@ -111,7 +111,7 @@ export default function Speciality() {
             </IconButton>
           </Box>
           <Box sx={{ width: "60px", display: "inline-block" }}>
-            <FormControl fullWidth>
+            <FormControl>
               <Select
                 labelId="demo-simple-select-label"
                 id="demo-simple-select"

@@ -11,96 +11,59 @@ import { menuButton } from "../App";
 const drawerWidth = 240;
 
 function ResponsiveDrawer(props) {
-  const {
-    mobileOpen,
-    selectedIndex,
-    handleDrawerToggle,
-    handleListItemClick,
-    role,
-  } = useContext(menuButton);
+  const { path, mobileOpen, handleDrawerToggle, role } = useContext(menuButton);
 
-  const handleChangePage = (e) => {
-    let path = e.target.textContent.toLowerCase().split(" ").join("");
-    if (path == "reviews" || path == "doctors") path = "doctors";
-    else if (path == "myappointments" || path == "appointments")
-      path = "appointments";
-    else if (path == "myprofile" || path == "doctorprofile") path = "profile";
+  const home = [
+    { name: "Doctors", link: "doctors" },
+    { name: "Specialities", link: "speciality" },
+  ];
 
-    props.setPath(path);
+  const patients = [
+    { name: "Doctors", link: "doctors" },
+    { name: "Specialities", link: "speciality" },
+    { name: "My Appointments", link: "patientAppointments" },
+    { name: "Account Settings", link: "patientSettings" },
+  ];
+
+  const doctors = [
+    { name: "Dasboard", link: "doctorDashboard" },
+    { name: "Doctor's Profile", link: "doctorProfile" },
+    { name: "Appointments", link: "doctorAppointments" },
+    { name: "Reviews", link: "reviews" },
+  ];
+
+  const hospital_admin = [
+    { name: "Dashboard", link: "hospitalDashboard" },
+    { name: "Requests", link: "doctorRequests" },
+  ];
+
+  let list;
+  if (!role) list = home;
+  else
+    list =
+      role == "patient"
+        ? patients
+        : role == "hospital_admin"
+        ? hospital_admin
+        : doctors;
+
+  const handleChangePage = (item) => {
+    props.setPath(item.link);
   };
   const drawer = (
     <div style={{ height: "100%" }}>
       <List>
-        {role == "doctor" && (
+        {list.map((item) => (
           <ListItem
-            key={"Dasboard"}
+            key={item.name}
             disablePadding
-            selected={selectedIndex === 0}
-            onClick={(event) => handleListItemClick(event, 0)}
+            sx={{ backgroundColor: path == item.link ? "lightgrey" : "white" }}
           >
-            <ListItemButton onClick={handleChangePage}>
-              <ListItemText primary={"Dashboard"} sx={{ fontWeight: "bold" }} />
+            <ListItemButton onClick={() => handleChangePage(item)}>
+              <ListItemText primary={item.name} sx={{ fontWeight: "bold" }} />
             </ListItemButton>
           </ListItem>
-        )}
-        <ListItem
-          key={"doctors"}
-          disablePadding
-          selected={selectedIndex === 1}
-          onClick={(event) => handleListItemClick(event, 1)}
-        >
-          <ListItemButton onClick={handleChangePage}>
-            <ListItemText
-              primary={role == "doctor" ? "Reviews" : "Doctors"}
-              sx={{ fontWeight: "bold" }}
-            />
-          </ListItemButton>
-        </ListItem>
-        {(role == "" || role == "patient") && (
-          <ListItem
-            key={"Speciality"}
-            disablePadding
-            selected={selectedIndex === 2}
-            onClick={(event) => handleListItemClick(event, 2)}
-          >
-            <ListItemButton onClick={handleChangePage}>
-              <ListItemText
-                primary={"Speciality"}
-                sx={{ fontWeight: "bold" }}
-              />
-            </ListItemButton>
-          </ListItem>
-        )}
-        {role != "" && (
-          <ListItem
-            key={"appointment"}
-            disablePadding
-            selected={selectedIndex === 3}
-            onClick={(event) => handleListItemClick(event, 3)}
-          >
-            <ListItemButton onClick={handleChangePage}>
-              <ListItemText
-                primary={role == "patient" ? "My appointments" : "Appointments"}
-                sx={{ fontWeight: "bold" }}
-              />
-            </ListItemButton>
-          </ListItem>
-        )}
-        {role != "" && (
-          <ListItem
-            key={"account"}
-            disablePadding
-            selected={selectedIndex === 4}
-            onClick={(event) => handleListItemClick(event, 4)}
-          >
-            <ListItemButton onClick={handleChangePage}>
-              <ListItemText
-                primary={role == "patient" ? "My Profile" : "Doctor Profile"}
-                sx={{ fontWeight: "bold" }}
-              />
-            </ListItemButton>
-          </ListItem>
-        )}
+        ))}
       </List>
     </div>
   );

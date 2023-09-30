@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from "./components/navbar";
 import Home from "./pages/home";
@@ -5,29 +6,46 @@ import Tab from "./pages/Tab";
 import Login from "./pages/login";
 import PatientSignup from "./pages/patientSignup";
 import Speciality from "./pages/speciality";
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import Dashboard from "./pages/doctors";
-import DoctorDashboard from "./pages/dashboard";
-import Profile from "./pages/profile";
-import Appointments from "./pages/appointments";
+import DoctorDashboard from "./pages/doctors/doctorDashboard";
+import { verifyToken } from "./hooks/verifyToken";
+import MyAppointments from "./pages/patients/myAppointments";
 
-let isrole = "";
-if (localStorage.getItem("role")) isrole = localStorage.getItem("role");
+let isrole = JSON.parse(localStorage.getItem("details")) ?? "";
 
 export const menuButton = createContext();
 
 function App() {
+  useEffect(() => {
+    if (isrole.token) {
+      (async () => {
+        const result = await verifyToken(isrole.token);
+        !result ? setRole("") : setRole(isrole.role);
+      })();
+    }
+  }, []);
+
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [role, setRole] = useState(isrole);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [role, setRole] = useState(isrole != "" ? isrole.role : "");
+
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
-  const [path, setPath] = useState(role == "doctor" ? "dashboard" : "doctors");
 
-  const handleListItemClick = (event, index) => {
-    setSelectedIndex(index);
-  };
+  let url = "";
+  if (role.length > 0) {
+    url =
+      role == "patient"
+        ? "doctors"
+        : role == "doctor"
+        ? "doctorDashboard"
+        : "hospitalDashboard";
+  } else {
+    url = "doctors";
+  }
+
+  const [path, setPath] = useState(url);
 
   return (
     <>
@@ -35,8 +53,6 @@ function App() {
         value={{
           mobileOpen,
           handleDrawerToggle,
-          selectedIndex,
-          handleListItemClick,
           role,
           setRole,
           path,
@@ -49,9 +65,11 @@ function App() {
               <Route path="/" element={<Home />}>
                 <Route path="speciality" element={<Speciality />}></Route>
                 <Route path="doctors" element={<Dashboard />}></Route>
-                <Route path="dashboard" element={<DoctorDashboard />}></Route>
-                <Route path="profile" element={<Profile />}></Route>
-                <Route path="appointments" element={<Appointments />}></Route>
+                <Route path="doctorDashboard" element={<DoctorDashboard />} />
+                <Route
+                  path="patientAppointments"
+                  element={<MyAppointments />}
+                />
               </Route>
               <Route path="auth" element={<Tab />}>
                 <Route path="login" element={<Login />} />

@@ -8,10 +8,14 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useNavigate, Outlet } from "react-router-dom";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { menuButton } from "../App";
 
 export default function Navbar() {
+  const details = JSON.parse(localStorage.getItem("details")) ?? "";
+  const [isDoctor, setIsDoctor] = useState(
+    details.isDoctor != "" ? details.isDoctor.switch : ""
+  );
   const navigate = useNavigate();
   const { handleDrawerToggle, role, setRole, setPath } = useContext(menuButton);
   return (
@@ -55,13 +59,44 @@ export default function Navbar() {
               <Button
                 variant="contained"
                 onClick={() => {
-                  localStorage.removeItem("role");
+                  localStorage.removeItem("details");
                   setRole("");
+                  setIsDoctor("");
                   navigate("/doctors");
                   setPath("doctors");
                 }}
               >
                 Logout
+              </Button>
+            )}
+            {role != "" && isDoctor === "" && (
+              <Button variant="contained">Register as doctor</Button>
+            )}
+
+            {isDoctor && (
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setRole("patient");
+                  setIsDoctor(false);
+                  setPath("doctors");
+                }}
+              >
+                Switch to patient
+              </Button>
+            )}
+
+            {!isDoctor && (
+              <Button
+                variant="contained"
+                onClick={() => {
+                  setRole("doctor");
+                  setIsDoctor(true);
+                  setPath("doctorDashboard");
+                }}
+                sx={{ fontSize: { xs: 10, md: 12 } }}
+              >
+                Switch to doctor
               </Button>
             )}
           </Stack>

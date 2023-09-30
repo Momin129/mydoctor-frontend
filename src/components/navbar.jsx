@@ -14,7 +14,7 @@ import { menuButton } from "../App";
 export default function Navbar() {
   const details = JSON.parse(localStorage.getItem("details")) ?? "";
   const [isDoctor, setIsDoctor] = useState(
-    details.isDoctor != "" ? details.isDoctor.switch : ""
+    details.isDoctor && details.isDoctor != "" ? details.isDoctor.switch : ""
   );
   const navigate = useNavigate();
   const { handleDrawerToggle, role, setRole, setPath } = useContext(menuButton);
@@ -65,15 +65,16 @@ export default function Navbar() {
                   navigate("/doctors");
                   setPath("doctors");
                 }}
+                sx={{ fontSize: { xs: 10, md: 12 } }}
               >
                 Logout
               </Button>
             )}
-            {role != "" && isDoctor === "" && (
+            {details.isDoctor && role != "" && isDoctor === "" && (
               <Button variant="contained">Register as doctor</Button>
             )}
 
-            {isDoctor && (
+            {details.isDoctor && isDoctor && (
               <Button
                 variant="contained"
                 onClick={() => {
@@ -81,12 +82,13 @@ export default function Navbar() {
                   setIsDoctor(false);
                   setPath("doctors");
                 }}
+                sx={{ fontSize: { xs: 10, md: 12 } }}
               >
                 Switch to patient
               </Button>
             )}
 
-            {!isDoctor && (
+            {details.isDoctor && !isDoctor && (
               <Button
                 variant="contained"
                 onClick={() => {

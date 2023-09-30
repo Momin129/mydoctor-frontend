@@ -7,6 +7,7 @@ import Dashboard from "./doctors";
 import { menuButton } from "../App";
 import DoctorDashboard from "./doctors/doctorDashboard";
 import MyAppointments from "./patients/myAppointments";
+import Hospitaldashboard from "./hospitalAdmins/hospitaldashboard";
 
 export default function Home() {
   const { path, setPath } = useContext(menuButton);
@@ -27,6 +28,7 @@ export default function Home() {
           {path == "doctors" && <Dashboard setPath={setPath} />}
           {path == "doctorDashboard" && <DoctorDashboard />}
           {path == "patientAppointments" && <MyAppointments />}
+          {path == "hospitalDashboard" && <Hospitaldashboard />}
         </Grid>
       </Grid>
     </>

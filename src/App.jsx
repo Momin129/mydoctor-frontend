@@ -11,6 +11,7 @@ import Dashboard from "./pages/doctors";
 import DoctorDashboard from "./pages/doctors/doctorDashboard";
 import { verifyToken } from "./hooks/verifyToken";
 import MyAppointments from "./pages/patients/myAppointments";
+import Hospitaldashboard from "./pages/hospitalAdmins/hospitaldashboard";
 
 let isrole = JSON.parse(localStorage.getItem("details")) ?? "";
 
@@ -66,6 +67,10 @@ function App() {
                 <Route path="speciality" element={<Speciality />}></Route>
                 <Route path="doctors" element={<Dashboard />}></Route>
                 <Route path="doctorDashboard" element={<DoctorDashboard />} />
+                <Route
+                  path="hospitalDashboard"
+                  element={<Hospitaldashboard />}
+                />
                 <Route
                   path="patientAppointments"
                   element={<MyAppointments />}

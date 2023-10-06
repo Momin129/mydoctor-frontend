@@ -4,12 +4,11 @@ import Card from "../components/card";
 import axios from "axios";
 import { useContext } from "react";
 import { menuButton } from "../App";
-const result = await axios.get(
-  "http://my-doctors.net:8090/specializations?$limit=100&$sort[name]=1"
-);
+const result = await axios.get("http://localhost:4000/api/getAllSpecialities");
 
 let total = result.data.total;
 let data = result.data.data.slice(0, 8);
+
 export default function Dashboard(props) {
   const { handleListItemClick } = useContext(menuButton);
   return (
@@ -29,8 +28,15 @@ export default function Dashboard(props) {
       </Grid>
       <Grid container>
         {data.map((item) => (
-          <Grid item key={item.name} xs={12} sm={6} lg={3} sx={{ padding: 2 }}>
-            <Card name={item.name} />
+          <Grid
+            item
+            key={item.speciality_name}
+            xs={12}
+            sm={6}
+            lg={3}
+            sx={{ padding: 2 }}
+          >
+            <Card item={item} />
           </Grid>
         ))}
       </Grid>

@@ -4,7 +4,6 @@ import Navbar from "./components/navbar";
 import Home from "./pages/home";
 import Tab from "./pages/Tab";
 import Login from "./pages/login";
-import PatientSignup from "./pages/patientSignup";
 import Speciality from "./pages/speciality";
 import { createContext, useEffect, useState } from "react";
 import Dashboard from "./pages/doctors";
@@ -12,41 +11,32 @@ import DoctorDashboard from "./pages/doctors/doctorDashboard";
 import { verifyToken } from "./hooks/verifyToken";
 import MyAppointments from "./pages/patients/myAppointments";
 import Hospitaldashboard from "./pages/hospitalAdmins/hospitaldashboard";
+import SignUp from "./pages/SignUp";
 
-let isrole = JSON.parse(localStorage.getItem("details")) ?? "";
+let token = JSON.parse(localStorage.getItem("token")) ?? "";
 
 export const menuButton = createContext();
 
 function App() {
-  useEffect(() => {
-    if (isrole.token) {
-      (async () => {
-        const result = await verifyToken(isrole.token);
-        !result ? setRole("") : setRole(isrole.role);
-      })();
-    }
-  }, []);
-
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [role, setRole] = useState(isrole != "" ? isrole.role : "");
+  const [role, setRole] = useState("");
+  const [path, setPath] = useState("");
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  let url = "";
-  if (role.length > 0) {
-    url =
-      role == "patient"
-        ? "doctors"
-        : role == "doctor"
-        ? "doctorDashboard"
-        : "hospitalDashboard";
-  } else {
-    url = "doctors";
-  }
-
-  const [path, setPath] = useState(url);
+  useEffect(() => {
+    if (token) {
+      (async () => {
+        const result = await verifyToken(token);
+        !result.success ? setRole("") : setRole(result.decode.role);
+        if (result.decode.role == "patient") setPath("doctors");
+        else if (result.decode.role == "doctor") setPath("doctorDashboard");
+        else setPath("hospitalDashboard");
+      })();
+    }
+  }, []);
 
   return (
     <>
@@ -78,8 +68,7 @@ function App() {
               </Route>
               <Route path="auth" element={<Tab />}>
                 <Route path="login" element={<Login />} />
-                <Route path="patientSignup" element={<PatientSignup />} />
-                <Route path="doctorSignup" element={<PatientSignup />} />
+                <Route path="Signup" element={<SignUp />} />
               </Route>
             </Route>
           </Routes>

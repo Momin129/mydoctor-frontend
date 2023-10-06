@@ -14,9 +14,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import Card from "../components/card";
 
-const result = await axios.get(
-  "http://my-doctors.net:8090/specializations?$limit=100&$sort[name]=1"
-);
+const result = await axios.get("http://localhost:4000/api/getAllSpecialities");
 
 let total = result.data.total;
 let data = result.data.data;
@@ -32,7 +30,9 @@ export default function Speciality() {
     if (searchValue.length != 0) {
       data = result.data.data;
       const filterData = data.filter((item) => {
-        if (item.name.toLowerCase().includes(searchValue.toLowerCase()))
+        if (
+          item.speciality_name.toLowerCase().includes(searchValue.toLowerCase())
+        )
           return item;
       });
       data = filterData;
@@ -130,7 +130,7 @@ export default function Speciality() {
       <Grid container>
         {slicedData.map((item) => (
           <Grid item key={item.name} xs={12} sm={6} lg={3} sx={{ padding: 2 }}>
-            <Card name={item.name} />
+            <Card item={item} />
           </Grid>
         ))}
       </Grid>

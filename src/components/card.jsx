@@ -1,6 +1,7 @@
+/* eslint-disable react/prop-types */
 import { Box, Stack, Typography } from "@mui/material";
 
-export default function Card(props) {
+export default function Card({ item }) {
   return (
     <Box
       sx={{
@@ -19,7 +20,7 @@ export default function Card(props) {
         sx={{ display: "flex", alignItems: "center", justifyContent: "center" }}
       >
         <img
-          src=""
+          src={item.speciality_image}
           onError={(e) => {
             e.target.src = "/images/alternative.svg";
             e.onerror = null;
@@ -29,7 +30,7 @@ export default function Card(props) {
         <Typography
           sx={{ display: "block", fontSize: "16px", fontWeight: "bold" }}
         >
-          {props.name}
+          {item.speciality_name}
         </Typography>
       </Stack>
     </Box>

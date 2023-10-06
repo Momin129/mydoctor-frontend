@@ -2,8 +2,8 @@ import { Box, Tab, Grid, Divider } from "@mui/material";
 import { TabContext, TabList, TabPanel } from "@mui/lab";
 import Login from "./login";
 import { useState } from "react";
-import PatientSignup from "./patientSignup";
 import { useNavigate } from "react-router-dom";
+import SignUp from "./SignUp";
 
 export default function Tabular() {
   const [value, setValue] = useState("1");
@@ -15,8 +15,7 @@ export default function Tabular() {
     let page = "";
 
     if (newValue === "1") page = "login";
-    else if (newValue === "2") page = "patientSignup";
-    else page = "doctorSignup";
+    else if (newValue === "2") page = "Signup";
 
     newValue === "1"
       ? (img = "/images/login.svg")
@@ -54,22 +53,11 @@ export default function Tabular() {
                   style={{ height: 50, alignSelf: "center" }}
                 />
                 <Tab
-                  label="PATIENT SIGN UP"
+                  label="SIGN UP"
                   sx={{
                     wordWrap: { xs: "break-word", md: "normal" },
                   }}
                   value="2"
-                ></Tab>
-                <Divider
-                  orientation="vertical"
-                  style={{ height: 50, alignSelf: "center" }}
-                />
-                <Tab
-                  label="HOSPITAL SIGN UP"
-                  sx={{
-                    wordWrap: { xs: "break-word", md: "normal" },
-                  }}
-                  value="3"
                 ></Tab>
               </TabList>
             </Grid>
@@ -105,26 +93,7 @@ export default function Tabular() {
                   paddingY: 4,
                 }}
               >
-                <PatientSignup
-                  type={"patient"}
-                  setValue={setValue}
-                  setImage={setImage}
-                />
-              </TabPanel>
-              <TabPanel
-                value="3"
-                sx={{
-                  width: { xs: 1, lg: "58%" },
-                  paddingRight: { xs: 0 },
-                  paddingX: 2,
-                  paddingY: 4,
-                }}
-              >
-                <PatientSignup
-                  type={"doctor"}
-                  setValue={setValue}
-                  setImage={setImage}
-                />
+                <SignUp setValue={setValue} setImage={setImage} />
               </TabPanel>
             </Grid>
           </Grid>

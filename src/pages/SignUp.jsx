@@ -12,6 +12,8 @@ import {
   RadioGroup,
   Radio,
   Box,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import parse from "html-react-parser";
 import { useEffect, useState } from "react";
@@ -22,22 +24,25 @@ import {
   validateEmail,
   validatePassword,
 } from "../utility/formValidation.js";
-import axios from "axios";
 import InfoIcon from "@mui/icons-material/Info";
+import axios from "axios";
 
-export default function PatientSignup(props) {
-  const isPatient = props.type === "patient" ? true : false;
+export default function SignUp(props) {
   const navigate = useNavigate();
   const [register, setRegister] = useState(false);
   const [regmsg, setRegmsg] = useState("");
   const [regMsgColor, setRegMsgColor] = useState("");
 
+  const date = new Date().getDate();
+  const month = new Date().getMonth() + 1;
+  const year = new Date().getFullYear();
   const [validity, setValidity] = useState({
     fullname: "",
     email: "",
     mobile: "",
     password: "",
     confirmpassword: "",
+    role: "",
   });
 
   const [empty, setEmpty] = useState({
@@ -46,14 +51,11 @@ export default function PatientSignup(props) {
     mobile: true,
     password: true,
     confirmpassword: true,
+    role: true,
   });
 
-  const date = new Date();
   const [inputs, setInputs] = useState({
     gender: "male",
-    day: date.getDate(),
-    month: date.getMonth() + 1,
-    year: date.getFullYear(),
   });
 
   const handleChange = (event) => {
@@ -73,7 +75,15 @@ export default function PatientSignup(props) {
       }
       setRegister(valid);
     } else setRegister(false);
-  }, [inputs, validity, empty]);
+
+    if (
+      (inputs.role == "doctor" &&
+        (inputs.licence_number == undefined || inputs.licence_number == "")) ||
+      (inputs.role == "hospital_admin" &&
+        (inputs.hospital_name == undefined || inputs.hospital_name == ""))
+    )
+      setRegister(false);
+  }, [inputs, validity, empty, inputs.role]);
 
   const handleBlur = async (e) => {
     const name = e.target.name;
@@ -84,12 +94,18 @@ export default function PatientSignup(props) {
       const value = await validateNumber(e.target.value.trim());
       setValidity((values) => ({ ...values, [name]: value }));
     } else if (name == "email") {
-      const value = await validateEmail(e.target.value.trim(), props.type);
+      const value = await validateEmail(e.target.value.trim());
       console.log(value);
       setValidity((values) => ({ ...values, [name]: value }));
     } else if (name == "password") {
       const value = validatePassword(e.target.value.trim());
       setValidity((values) => ({ ...values, [name]: value }));
+    } else if (name == "role") {
+      if (inputs.role == "")
+        setValidity((values) => ({
+          ...values,
+          [name]: "you have to choose a role",
+        }));
     } else if (name == "confirmpassword") {
       let value = "";
       if (
@@ -107,36 +123,36 @@ export default function PatientSignup(props) {
   };
 
   const handleSubmit = async () => {
-    let url = "";
-
-    let obj = {
+    const obj = {
+      fullname: inputs.fullname,
       email: inputs.email,
-      password: inputs.password,
       contact: inputs.mobile,
+      gender: inputs.gender,
+      password: inputs.password,
+      role: inputs.role,
     };
 
-    if (isPatient) {
-      obj["fullname"] = inputs.fullname;
-      obj["gender"] = inputs.gender;
-      obj["role"] = "patient";
-    } else {
-      obj["hospital_name"] = inputs.fullname;
-      obj["role"] = "doctor";
-    }
+    if (inputs.role == "patient") obj["dob"] = inputs.dob;
+    else if (inputs.role == "doctor")
+      obj["licence_number"] = inputs.licence_number;
+    else if (inputs.role == "hospital_admin")
+      obj["hospital_name"] = inputs.hospital_name;
 
     try {
-      console.log(obj);
-      url = "http://localhost:4000/api/registerUser";
-      await axios.post(url, obj);
-      for (let item in inputs) {
-        setInputs((inputs[item] = ""));
-      }
-      setRegister(false);
+      const result = await axios.post(
+        "http://localhost:4000/api/registerUser",
+        obj
+      );
+      console.log(result);
+      setRegmsg(result.data.message);
       setRegMsgColor("lightgreen");
-      setRegmsg("Signed up succesfully");
+      for (let item in inputs) {
+        setInputs((values) => ({ ...values, [item]: "" }));
+      }
     } catch (error) {
+      console.log(error);
+      setRegmsg(error.response.data.message);
       setRegMsgColor("red");
-      setRegmsg("Signed up unsuccesfully");
     }
   };
 
@@ -176,10 +192,10 @@ export default function PatientSignup(props) {
           </Typography>
         </Grid>
         <Grid item md={12}>
-          <InputLabel>{isPatient ? "Full Name*" : "Hospital Name*"}</InputLabel>
+          <InputLabel>{"Full Name*"}</InputLabel>
           <TextField
             name="fullname"
-            placeholder={isPatient ? "Enter name" : "Enter hospital name"}
+            placeholder={"Enter name"}
             type="text"
             variant="outlined"
             sx={{ width: 1 }}
@@ -201,36 +217,31 @@ export default function PatientSignup(props) {
             </Box>
           )}
         </Grid>
-        {isPatient && (
-          <Grid item sm={12} md={12}>
-            <FormControl>
-              <FormLabel id="demo-radio-buttons-group-label">Gender*</FormLabel>
-              <RadioGroup
-                row
-                aria-labelledby="demo-radio-buttons-group-label"
-                defaultValue="male"
-                name="gender"
-                onChange={handleChange}
-              >
-                <FormControlLabel
-                  value="male"
-                  control={<Radio />}
-                  label="Male"
-                />
-                <FormControlLabel
-                  value="female"
-                  control={<Radio />}
-                  label="Female"
-                />
-                <FormControlLabel
-                  value="other"
-                  control={<Radio />}
-                  label="Other"
-                />
-              </RadioGroup>
-            </FormControl>
-          </Grid>
-        )}
+
+        <Grid item sm={12} md={12}>
+          <FormControl>
+            <FormLabel id="demo-radio-buttons-group-label">Gender*</FormLabel>
+            <RadioGroup
+              row
+              aria-labelledby="demo-radio-buttons-group-label"
+              defaultValue="male"
+              name="gender"
+              onChange={handleChange}
+            >
+              <FormControlLabel value="male" control={<Radio />} label="Male" />
+              <FormControlLabel
+                value="female"
+                control={<Radio />}
+                label="Female"
+              />
+              <FormControlLabel
+                value="other"
+                control={<Radio />}
+                label="Other"
+              />
+            </RadioGroup>
+          </FormControl>
+        </Grid>
 
         <Grid item md={12}>
           <InputLabel>Mobile Number*</InputLabel>
@@ -332,6 +343,68 @@ export default function PatientSignup(props) {
             </Box>
           )}
         </Grid>
+        <Grid item md={12}>
+          <FormControl fullWidth>
+            <InputLabel>Choose a role</InputLabel>
+            <Select
+              name="role"
+              value={inputs.role || ""}
+              onChange={handleChange}
+            >
+              <MenuItem value="patient">Patient</MenuItem>
+              <MenuItem value="doctor">Doctor</MenuItem>
+              <MenuItem value="hospital_admin">Hospital Admin</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
+        {inputs.role && (
+          <Grid item md={12}>
+            {inputs.role == "patient" && (
+              <TextField
+                name="dob"
+                type="date"
+                label="Date Of Birth"
+                variant="outlined"
+                sx={{ width: 1 }}
+                value={
+                  inputs.dob ||
+                  `${year}-${month}-${
+                    date >= 0 && date <= 9 ? "0" + date : date
+                  }`
+                }
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+              />
+            )}
+            {inputs.role == "doctor" && (
+              <TextField
+                name="licence_number"
+                type="text"
+                label="Licence Number"
+                variant="outlined"
+                sx={{ width: 1 }}
+                value={inputs.licence_number || ""}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+              />
+            )}
+            {inputs.role == "hospital_admin" && (
+              <TextField
+                name="hospital_name"
+                type="text"
+                label="Hospital Name"
+                variant="outlined"
+                sx={{ width: 1 }}
+                value={inputs.hospital_name || ""}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                required
+              />
+            )}
+          </Grid>
+        )}
         <Grid item sm={12} md={12}>
           <Grid container sx={{ alignItems: "center" }}>
             <Grid

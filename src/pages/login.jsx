@@ -10,7 +10,7 @@ export default function Login(props) {
   const navigate = useNavigate();
   const [logmsg, setLogmsg] = useState("");
   const [inputs, setInputs] = useState({});
-  const { setRole } = useContext(menuButton);
+  const { setRole, setPath } = useContext(menuButton);
 
   const handleChange = (event) => {
     const name = event.target.name;
@@ -21,20 +21,23 @@ export default function Login(props) {
   const handleSubmit = async () => {
     try {
       const result = await axios.post("http://localhost:4000/api/login", {
-        email: inputs.email,
+        emailContact: inputs.emailContact,
         password: inputs.password,
       });
 
+      setRole(result.data.role);
+      localStorage.setItem("token", JSON.stringify(result.data.token));
+
       let url;
       if (result.data.role == "patient") {
-        if (result.data.isDoctor == "" || !result.data.isDoctor.switch) {
-          url = "/doctors";
-        } else url = "/doctorDashborad";
-      } else url = "/hospitalDashboard";
+        url = "doctors";
+      } else if (result.data.role == "hospital_admin")
+        url = "hospitalDashboard";
+      else url = "doctorDashboard";
 
-      localStorage.setItem("details", JSON.stringify(result.data));
       setRole(result.data.role);
-      navigate(url);
+      navigate(`/${url}`);
+      setPath(url);
     } catch (error) {
       console.log(error);
       setLogmsg(error.response.data.message);
@@ -72,11 +75,11 @@ export default function Login(props) {
       )}
       <Grid item sm={12} md={12}>
         <TextField
-          name="email"
+          name="emailContact"
           label="Email or Mobile Number"
           type="text"
           variant="outlined"
-          value={inputs.email || ""}
+          value={inputs.emailContact || ""}
           onChange={handleChange}
           sx={{ width: 1 }}
           required
@@ -129,7 +132,7 @@ export default function Login(props) {
           onClick={() => {
             props.setValue("2");
             props.setImage("/images/registration.svg");
-            navigate("/auth/patientSignup");
+            navigate("/auth/Signup");
           }}
         >
           Sign up

@@ -13,14 +13,16 @@ export async function validateNumber(number) {
   if (number.length != 10) msg += "*Number should be of 10 digits <br/>";
   if (!number.match(regEx)) msg += "*Number should only contain digits";
 
-  try {
-    await axios.get("http://localhost:4000/api/duplicate", {
-      params: { contactNumber: number },
-    });
-  } catch (error) {
-    if (error.response.status === 400) {
-      msg = error.response.data.message;
-      msg = "*" + msg;
+  if (number.length > 0) {
+    try {
+      const result = await axios.get("http://localhost:4000/api/duplicate", {
+        params: { contact: number },
+      });
+
+      msg += result.data.message.length > 0 ? "*" : "";
+      msg += result.data.message;
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -28,20 +30,21 @@ export async function validateNumber(number) {
   else return "";
 }
 
-export async function validateEmail(email, role) {
+export async function validateEmail(email) {
   var regEx = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
   let msg = "";
   if (email.match(regEx)) msg = "";
   else msg = "*Please provide a valid email.";
 
-  try {
-    await axios.get("http://localhost:4000/api/duplicate", {
-      params: { email: email, role: role },
-    });
-  } catch (error) {
-    if (error.response.status === 400) {
-      msg = error.response.data.message;
-      msg = "*" + msg;
+  if (email.length > 0) {
+    try {
+      const result = await axios.get("http://localhost:4000/api/duplicate", {
+        params: { email: email },
+      });
+      msg += result.data.message.length > 0 ? "*" : "";
+      msg += result.data.message;
+    } catch (error) {
+      console.log(error);
     }
   }
 
